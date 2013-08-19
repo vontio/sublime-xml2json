@@ -1,0 +1,10 @@
+[
+ {
+ "keys": ["ctrl+alt+shift+j"],
+ "command": "xml2json"
+ },
+ {
+ "keys": ["ctrl+alt+shift+l"],
+ "command": "json2xml"
+ }
+]

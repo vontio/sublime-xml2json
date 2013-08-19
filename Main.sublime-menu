@@ -1,0 +1,16 @@
+[
+    {
+        "id": "tools",
+        "children":
+        [
+            {
+            	"caption": "Xml2json",
+            	"command": "xml2json" 
+            },
+            {
+            	"caption": "Json2xml",
+            	"command": "json2xml" 
+            }
+        ]
+    }
+]

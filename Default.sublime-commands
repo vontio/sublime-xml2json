@@ -1,0 +1,10 @@
+[
+    {
+        "caption": "Xml2json: xml2json (convert xml file to json file)",
+        "command": "xml2json" 
+    },
+    {
+        "caption": "Xml2json: json2xml (convert json file to xml file)",
+        "command": "json2xml"
+    }
+]
