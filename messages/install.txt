@@ -1,0 +1,16 @@
+## Usage :
+
+ - use `cmd+shift+P` then `xml2json` or `json2xml`
+ - or goto menubar `Tools` then `xml2json` or `json2xml`
+ - or bind some key in your user key binding:
+
+  ```js
+    {
+	 "keys": ["ctrl+alt+shift+j"],
+	 "command": "xml2json"
+	},
+	{
+	 "keys": ["ctrl+alt+shift+l"],
+	 "command": "json2xml"
+	}
+  ```
