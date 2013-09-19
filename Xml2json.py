@@ -18,7 +18,7 @@ class Xml2jsonCommand(sublime_plugin.TextCommand):
 		try:
 			jsonObj = xmltodict.parse(fulltext)
 			jsonStr = json.dumps(jsonObj)
-		except Exception, e:
+		except Exception as e:
 			sublime.error_message('xml2json error: ' + e.message)
 			return
 		newViewWithText(jsonStr)
@@ -34,11 +34,11 @@ class Json2xmlCommand(sublime_plugin.TextCommand):
 				newText = '{"root":' + fulltext + '}'
 				jsonObj = json.loads(newText) #try to add a wrapper
 				xmlStr = xmltodict.unparse(jsonObj)
-			except Exception, e:
+			except Exception as e:
 				newViewWithText(newText)
 				sublime.error_message('json2xml error!!: ' + e.message)
 				return
-		except Exception,e:
+		except Exception as e:
 			sublime.error_message('json2xml error: ' + e.message)
 			return
 		newViewWithText(xmlStr)
