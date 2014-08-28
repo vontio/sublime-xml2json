@@ -12,8 +12,16 @@
                         "command": "xml2json" 
                     },
                     {
+                        "caption": "xml2json pretty",
+                        "command": "xml2jsonpretty"
+                    },
+                    {
                         "caption": "json2xml",
                         "command": "json2xml" 
+                    },
+                    {
+                        "caption": "json2xml pretty",
+                        "command": "json2xmlpretty"
                     }
                 ]
             }

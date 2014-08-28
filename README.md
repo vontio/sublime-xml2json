@@ -12,8 +12,8 @@ convert xml file to json file or json file to xml file.
 
 ## Usage :
 
- - use `cmd+shift+P` then `xml2json` or `json2xml`
- - or goto menubar `Tools` then `xml2json` or `json2xml`
+ - use `cmd+shift+P` then `xml2json` or `xml2json pretty` or `json2xml` or `json2xml pretty`
+ - or goto menubar `Tools` then `xml2json`
  - or bind some key in your user key binding:
 
   ```js
