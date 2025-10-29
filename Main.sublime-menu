@@ -12,16 +12,16 @@
                         "command": "xml2json" 
                     },
                     {
-                        "caption": "xml2json pretty",
-                        "command": "xml2jsonpretty"
+                        "caption": "xml2json compact",
+                        "command": "xml2json_compact"
                     },
                     {
                         "caption": "json2xml",
                         "command": "json2xml" 
                     },
                     {
-                        "caption": "json2xml pretty",
-                        "command": "json2xmlpretty"
+                        "caption": "json2xml",
+                        "command": "json2xml_compact"
                     }
                 ]
             }

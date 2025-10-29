@@ -12,7 +12,7 @@ convert xml file to json file or json file to xml file.
 
 ## Usage :
 
- - use `cmd+shift+P` then `xml2json` or `xml2json pretty` or `json2xml` or `json2xml pretty`
+ - use `cmd+shift+P` then `xml2json` or `xml2json compact` or `json2xml` or `json2xml compact`
  - or goto menubar `Tools` then `xml2json`
  - or bind some key in your user key binding:
 
