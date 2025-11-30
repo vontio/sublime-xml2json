@@ -255,40 +255,75 @@ def apply_attr_text_normalization(node, value_key=None):
 	Smartly flattens xmltodict structure.
 	1. Flattens attributes ("@key" -> "key") and text ("#text" -> configurable value key).
 	2. Handles conflicts: if <tag value="100">text</tag>, keeps original structure to save data.
-	3. Handles empty nodes: <tag name="x"></tag> -> {"name": "x", <value_key>: ""} for consistency.
+	3. Smart Empty Tag Handling:
+	   - If inside a list: checks siblings. If ANY sibling has text, forces text="" for consistency.
+	     If NO siblings have text, leaves them as pure objects.
+	   - If single node: checks attributes. If exactly 1 attribute (e.g. <item name="x"/>), forces text="".
 	"""
 	value_key = value_key or get_attr_text_value_key()
 
-	def _convert(current):
+	def _convert(current, is_list_item=False):
 		# Base case: primitive types (str, int, none, etc.) return as is
 		if not isinstance(current, (dict, list)):
 			return current
 
+		# --- CASE 1: Processing a LIST of items (Siblings) ---
 		if isinstance(current, list):
-			return [_convert(item) for item in current]
+			# Check Condition 1: Do any siblings have text?
+			siblings_have_text = False
+			for item in current:
+				if isinstance(item, dict) and '#text' in item:
+					siblings_have_text = True
+					break
+			
+			new_list = []
+			for item in current:
+				# Apply Condition 1 Logic:
+				# If we are in a mixed list (some have text), force empty strings on the others for consistency.
+				if isinstance(item, dict) and siblings_have_text:
+					attr_keys = [k for k in item.keys() if k.startswith('@')]
+					child_keys = [k for k in item.keys() if not k.startswith('@') and k != '#text']
+					has_text = '#text' in item
+					
+					# Only force if it's an "empty leaf" (has attrs, no children, no text)
+					if attr_keys and not child_keys and not has_text:
+						item = item.copy()
+						item['#text'] = ""
+				
+				# Recurse with flag indicating this came from a list
+				new_list.append(_convert(item, is_list_item=True))
+			return new_list
 
+		# --- CASE 2: Processing a DICT (Single Item) ---
 		if isinstance(current, dict):
 			new_dict = OrderedDict()
 			
 			# Analyze the node structure
 			attr_keys = [k for k in current.keys() if k.startswith('@')]
-			# Identify children that are NOT attributes and NOT text
 			child_keys = [k for k in current.keys() if not k.startswith('@') and k != '#text']
 			has_text = '#text' in current
 
 			# --- Fix: Handle Consistency for Empty Tags ---
-			# If a node has attributes, NO nested children, and NO text, it is an empty leaf tag.
-			# e.g., <string name="back"></string>
-			# To ensure consistency with siblings that have text, we force a "value": "" entry.
 			if attr_keys and not child_keys and not has_text:
-				# Treat it as having an empty string value instead of None
-				has_text = True
-				current = current.copy() # Shallow copy to avoid mutating original data unexpectedly
-				current['#text'] = "" # Changed from None to ""
+				should_force_text = False
+				
+				# Condition 2: Single Node Logic (No Siblings)
+				# If this is NOT a list item, we look for "Single Attribute" heuristic.
+				# e.g., <item key="val"/> -> likely a key-value pair.
+				# e.g., <item id="1" type="bool"/> -> likely just an object.
+				if not is_list_item:
+					if len(attr_keys) == 1:
+						should_force_text = True
+				
+				# Note: If is_list_item is True, we rely entirely on the LIST block above.
+				# If the LIST block didn't add #text, it means no siblings had text, so we don't add it here.
+
+				if should_force_text:
+					has_text = True
+					current = current.copy()
+					current['#text'] = ""
 
 			# --- Conflict Detection ---
-			# Check if any attribute name (after stripping '@') conflicts with our target_text_key.
-			# e.g., <price value="100">USD</price> -> {"@value": "100", "#text": "USD"}
 			conflict = False
 			if has_text:
 				for k in attr_keys:
@@ -298,17 +333,17 @@ def apply_attr_text_normalization(node, value_key=None):
 
 			for key, val in current.items():
 				if conflict:
-					# If conflict exists, DO NOT flatten this specific node.
-					# Keep keys as is ('@value', '#text') to preserve both data points.
-					new_dict[key] = _convert(val)
+					# Keep structure on conflict
+					new_dict[key] = _convert(val) # Reset is_list_item for children
 				else:
-					# No conflict: perform smart flattening
+					# Flatten
 					if key == '#text':
-						new_dict[value_key] = val # text becomes configured value key
+						new_dict[value_key] = val
 					elif key.startswith('@'):
-						new_dict[key[1:]] = val # remove "@" prefix
+						new_dict[key[1:]] = val
 					else:
-						new_dict[key] = _convert(val)
+						# Recurse (children are new contexts, not list items of THIS node)
+						new_dict[key] = _convert(val) 
 			
 			return new_dict
 
