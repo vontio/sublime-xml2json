@@ -242,29 +242,29 @@ def json2xml(fulltext, pretty=None):
 	if pretty is None:
 		pretty = get_default_pretty()
 	try:
-		jsonObj = json.JSONDecoder(object_pairs_hook=OrderedDict).decode(fulltext)
+		data = json.JSONDecoder(object_pairs_hook=OrderedDict).decode(fulltext)
+		root_name = get_default_root_name() or "root"
+		# decide if we need to wrap the data
+		if isinstance(data, list):
+			# list at root level, need to wrap
+			wrapped = OrderedDict([(
+				root_name, 
+				OrderedDict([("item", data)]) # wrap list items in "item" tags
+			)])
+		elif not isinstance(data, dict):
+			# string, number, bool, null etc. Wrap it
+			wrapped = OrderedDict([(root_name, data)])
+		elif len(data) > 1:
+			# multiple root-level keys, need to wrap
+			wrapped = OrderedDict([(root_name, data)])
+		else:
+			wrapped = data
 		xmlStr = xmltodict.unparse(
-			jsonObj,
+			wrapped,
 			pretty=pretty,
 			full_document=get_include_xml_declaration(),
 			indent=get_xml_indent(),
 			empty_tag_style=get_empty_tag_style())
-	except ValueError:
-		try:
-			newText = '{{"{root}":{payload}}}'.format(
-				root=get_default_root_name(),
-				payload=fulltext) # try to add a wrapper
-			jsonObj = json.JSONDecoder(object_pairs_hook=OrderedDict).decode(newText)
-			xmlStr = xmltodict.unparse(
-				jsonObj,
-				pretty=pretty,
-				full_document=get_include_xml_declaration(),
-				indent=get_xml_indent(),
-				empty_tag_style=get_empty_tag_style())
-		except Exception as e:
-			newViewWithText(newText, 'xml', fulltext)
-			sublime.error_message('json2xml error!!: ' + str(e))
-			return None
 	except Exception as e:
 		sublime.error_message('json2xml error: ' + str(e))
 		return None
