@@ -12,16 +12,32 @@
                         "command": "xml2json" 
                     },
                     {
-                        "caption": "xml2json compact",
-                        "command": "xml2json_compact"
+                        "caption": "json2xml",
+                        "command": "json2xml"
                     },
                     {
-                        "caption": "json2xml",
-                        "command": "json2xml" 
+                        "caption": "xml2json (Save to file)",
+                        "command": "xml2json_save"
                     },
                     {
-                        "caption": "json2xml",
-                        "command": "json2xml_compact"
+                        "caption": "json2xml (Save to file)",
+                        "command": "json2xml_save"
+                    },
+                    {
+                        "caption": "Pretty JSON (Keep Order)",
+                        "command": "pretty_json_ordered"
+                    },
+                    {
+                        "caption": "Pretty XML",
+                        "command": "pretty_xml"
+                    },
+                    {
+                        "caption": "Compact JSON",
+                        "command": "compact_json"
+                    },
+                    {
+                        "caption": "Compact XML",
+                        "command": "compact_xml"
                     }
                 ]
             }

@@ -12,7 +12,10 @@ convert xml file to json file or json file to xml file.
 
 ## Usage :
 
- - use `cmd+shift+P` then `xml2json` or `xml2json compact` or `json2xml` or `json2xml compact`
+ - use `cmd+shift+P` then `xml2json` or `json2xml` (opens result in a new unsaved buffer)
+ - use `cmd+shift+P` then `xml2json (Save to file)` or `json2xml (Save to file)` to save next to the source file (e.g. `abc.xml` -> `abc.json`, `abc.json` -> `abc.xml`); if the target exists you will be asked whether to overwrite, and choosing not to overwrite leaves the result in an unsaved buffer
+ - use `cmd+shift+P` then `Pretty JSON (Keep Order)` to format JSON while preserving key order (edits the current buffer without saving)
+ - use `cmd+shift+P` then `Pretty XML`, `Compact JSON`, or `Compact XML` to format the current buffer without saving
  - or goto menubar `Tools` then `xml2json`
  - or bind some key in your user key binding:
 
