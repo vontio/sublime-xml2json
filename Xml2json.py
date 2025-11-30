@@ -380,9 +380,15 @@ def json2xml(fulltext, pretty=None):
 			if len(data) > 1:
 				need_wrap = True
 			elif len(data) == 1:
-				# Get the first value safely
+				first_key = list(data.keys())[0]
 				first_value = list(data.values())[0]
+				
+				# 1. If value is a list, xmltodict creates multiple roots -> Must Wrap
 				if isinstance(first_value, list):
+					need_wrap = True
+				# 2. If key looks like an attribute (@...) or text (#text), 
+				#    it cannot be a root tag name -> Must Wrap
+				elif first_key.startswith('@') or first_key == '#text':
 					need_wrap = True
 
 			if need_wrap:
