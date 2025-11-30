@@ -30,4 +30,8 @@ convert xml file to json file or json file to xml file.
 	}
   ```
 
+## Settings
+
+- Configure `empty_tag_style` in `xml2json.sublime-settings` to control empty tag output when generating XML. Options: `compact` (`<tag/>`, default), `spaced` (`<tag />`), `expanded` (`<tag></tag>`).
+
  [0]: http://wbond.net/sublime_packages/package_control

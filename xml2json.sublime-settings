@@ -1,0 +1,4 @@
+{
+	// Controls how empty XML tags are written: "compact" => <tag/>, "spaced" => <tag />, "expanded" => <tag></tag>
+	"empty_tag_style": "compact"
+}

@@ -37,6 +37,30 @@ class ParsingInterrupted(Exception):
     pass
 
 
+class _XMLGenerator(XMLGenerator):
+    """XMLGenerator that can optionally emit a space before the self-closing slash."""
+
+    def __init__(self, out=None, encoding='iso-8859-1',
+                 short_empty_elements=False, space_before_slash=False):
+        self.space_before_slash = space_before_slash
+        super(_XMLGenerator, self).__init__(
+            out, encoding, short_empty_elements=short_empty_elements)
+
+    def endElement(self, name):
+        if self._pending_start_element and self.space_before_slash:
+            self._write(' />')
+            self._pending_start_element = False
+            return
+        super(_XMLGenerator, self).endElement(name)
+
+    def endElementNS(self, name, qname):
+        if self._pending_start_element and self.space_before_slash:
+            self._write(' />')
+            self._pending_start_element = False
+            return
+        super(_XMLGenerator, self).endElementNS(name, qname)
+
+
 class _DictSAXHandler(object):
     def __init__(self,
                  item_depth=0,
@@ -303,7 +327,7 @@ def _emit(key, value, content_handler,
 
 
 def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
-            **kwargs):
+            empty_tag_style='compact', **kwargs):
     """Emit an XML document for the given `input_dict` (reverse of `parse`).
 
     The resulting XML document is returned as a string, but if `output` (a
@@ -317,13 +341,35 @@ def unparse(input_dict, output=None, encoding='utf-8', full_document=True,
     mode, lines are terminated with `'\n'` and indented with `'\t'`, but this
     can be customized with the `newl` and `indent` parameters.
 
+    The `empty_tag_style` parameter controls how empty tags are written and
+    accepts one of `'compact'` (default: `<tag/>`), `'spaced'` (`<tag />`), or
+    `'expanded'` (`<tag></tag>`).
+
     """
+    if empty_tag_style is None:
+        empty_tag_style = 'compact'
+    style = empty_tag_style.strip().lower()
+    if style == 'compact':
+        short_empty_elements = True
+        space_before_slash = False
+    elif style == 'spaced':
+        short_empty_elements = True
+        space_before_slash = True
+    elif style == 'expanded':
+        short_empty_elements = False
+        space_before_slash = False
+    else:
+        raise ValueError("empty_tag_style must be one of 'compact', "
+                         "'spaced' or 'expanded'")
     ((key, value),) = input_dict.items()
     must_return = False
     if output is None:
         output = StringIO()
         must_return = True
-    content_handler = XMLGenerator(output, encoding)
+    content_handler = _XMLGenerator(
+        output, encoding,
+        short_empty_elements=short_empty_elements,
+        space_before_slash=space_before_slash)
     if full_document:
         content_handler.startDocument()
     _emit(key, value, content_handler, **kwargs)

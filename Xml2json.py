@@ -28,6 +28,19 @@ def get_json_candidates():
 		'Packages/JavaScript/JSON.tmLanguage',   # ST2 / ST3
 	]
 
+def get_settings():
+	return sublime.load_settings('xml2json.sublime-settings')
+
+def get_empty_tag_style():
+	style = get_settings().get('empty_tag_style', 'compact')
+	if isinstance(style, str):
+		style = style.strip().lower()
+	else:
+		style = 'compact'
+	if style not in ('compact', 'spaced', 'expanded'):
+		style = 'compact'
+	return style
+
 def setSyntaxSafely(view, candidates):
 	"""
 	candidates: list of possible syntax file paths (strings).
@@ -112,12 +125,14 @@ class Xml2jsonCommand(sublime_plugin.TextCommand):
 def json2xml(fulltext, pretty=True):
 	try:
 		jsonObj = json.JSONDecoder(object_pairs_hook=OrderedDict).decode(fulltext)
-		xmlStr = xmltodict.unparse(jsonObj, pretty=pretty)
+		xmlStr = xmltodict.unparse(
+			jsonObj, pretty=pretty, empty_tag_style=get_empty_tag_style())
 	except ValueError:
 		try:
 			newText = '{"root":' + fulltext + '}' #try to add a wrapper
 			jsonObj = json.JSONDecoder(object_pairs_hook=OrderedDict).decode(newText)
-			xmlStr = xmltodict.unparse(jsonObj, pretty=pretty)
+			xmlStr = xmltodict.unparse(
+				jsonObj, pretty=pretty, empty_tag_style=get_empty_tag_style())
 		except Exception as e:
 			newViewWithText(newText, 'xml')
 			sublime.error_message('json2xml error!!: ' + str(e))
@@ -182,7 +197,8 @@ class PrettyXmlCommand(sublime_plugin.TextCommand):
 		fulltext = self.view.substr(region)
 		try:
 			xmlObj = xmltodict.parse(fulltext)
-			pretty_xml = xmltodict.unparse(xmlObj, pretty=True)
+			pretty_xml = xmltodict.unparse(
+				xmlObj, pretty=True, empty_tag_style=get_empty_tag_style())
 		except Exception as e:
 			sublime.error_message('pretty xml error: ' + str(e))
 			return
@@ -196,7 +212,8 @@ class CompactXmlCommand(sublime_plugin.TextCommand):
 		fulltext = self.view.substr(region)
 		try:
 			xmlObj = xmltodict.parse(fulltext)
-			compact_xml = xmltodict.unparse(xmlObj, pretty=False)
+			compact_xml = xmltodict.unparse(
+				xmlObj, pretty=False, empty_tag_style=get_empty_tag_style())
 		except Exception as e:
 			sublime.error_message('compact xml error: ' + str(e))
 			return
