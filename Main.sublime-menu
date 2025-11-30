@@ -1,15 +1,13 @@
 [
     {
         "id": "tools",
-        "children":
-        [
+        "children": [
             {
                 "caption": "xml2json",
-                "children":
-                [
+                "children": [
                     {
                         "caption": "xml2json",
-                        "command": "xml2json" 
+                        "command": "xml2json"
                     },
                     {
                         "caption": "json2xml",
@@ -24,8 +22,8 @@
                         "command": "json2xml_save"
                     },
                     {
-                        "caption": "Pretty JSON (Keep Order)",
-                        "command": "pretty_json_ordered"
+                        "caption": "Pretty JSON",
+                        "command": "pretty_json"
                     },
                     {
                         "caption": "Pretty XML",
@@ -38,6 +36,41 @@
                     {
                         "caption": "Compact XML",
                         "command": "compact_xml"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "caption": "Preferences",
+        "mnemonic": "n",
+        "id": "preferences",
+        "children": [
+            {
+                "caption": "Package Settings",
+                "mnemonic": "P",
+                "id": "package-settings",
+                "children": [
+                    {
+                        "caption": "xml2json",
+                        "children": [
+                            {
+                                "caption": "Settings",
+                                "command": "edit_settings",
+                                "args": {
+                                    "base_file": "${packages}/xml2json/xml2json.sublime-settings",
+                                    "default": "{\n\t$0\n}\n"
+                                }
+                            },
+                            {
+                                "caption": "Key Bindings",
+                                "command": "edit_settings",
+                                "args": {
+                                    "base_file": "${packages}/xml2json/Default ($platform).sublime-keymap",
+                                    "default": "{\n\t$0\n}\n"
+                                }
+                            }
+                        ]
                     }
                 ]
             }

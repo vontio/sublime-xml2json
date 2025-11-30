@@ -16,8 +16,8 @@
         "command": "json2xml_save"
     },
     {
-        "caption": "Pretty JSON (Keep Order)",
-        "command": "pretty_json_ordered"
+        "caption": "Pretty JSON",
+        "command": "pretty_json"
     },
     {
         "caption": "Pretty XML",

@@ -1,4 +1,32 @@
 {
 	// Controls how empty XML tags are written: "compact" => <tag/>, "spaced" => <tag />, "expanded" => <tag></tag>
-	"empty_tag_style": "compact"
+	"empty_tag_style": "compact",
+
+	// Indentation size for pretty JSON output
+	"pretty_json_indent": 2,
+
+	// Indentation size for pretty XML output
+	"pretty_xml_indent": 2,
+
+	// Whether conversion commands default to pretty (true/"pretty") or compact (false/"compact")
+	"default_conversion_pretty": true,
+
+	// JSON output options
+	"json_ensure_ascii": false,
+	"json_sort_keys": false,
+
+	// Default root name when wrapping JSON that lacks a single root
+	"default_xml_root_name": "root",
+
+	// Whether to include the XML declaration when converting JSON to XML
+	"include_xml_declaration": true,
+
+	// Line endings for generated output: "auto" (preserve source), "unix", "windows", or "mac"
+	"line_ending": "auto",
+
+	// Ensure a trailing newline is present in generated output
+	"ensure_final_newline": true,
+
+	// Trim trailing whitespace in generated output (e.g., space after commas)
+	"trim_trailing_whitespace": true
 }
