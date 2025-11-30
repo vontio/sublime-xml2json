@@ -37,6 +37,8 @@ convert xml file to json file or json file to xml file.
 - `default_conversion_pretty`: whether conversion commands default to pretty (`true`/`"pretty"`) or compact (`false`/`"compact"`); default `true`.
 - `json_ensure_ascii`: whether to escape non-ASCII when emitting JSON (default `false`).
 - `json_sort_keys`: whether to sort keys when emitting JSON (default `false`).
+- `normalize_attribute_text_pairs`: when converting XML to JSON, convert simple attribute/text pairs (e.g., `{"@name": "...", "#text": "..."}`) into `{name: "...", value: "..."}` (default `true`).
+- `attribute_text_value_key`: key name to store text content when `normalize_attribute_text_pairs` is enabled (default `"value"`).
 - `default_xml_root_name`: fallback root element name when wrapping JSON that lacks a single root (default `"root"`).
 - `include_xml_declaration`: include `<?xml version="1.0" encoding="utf-8"?>` when converting JSON to XML (default `true`).
 - `line_ending`: line endings for generated output: `auto` (preserve from source), `unix` (`\n`), `windows` (`\r\n`), `mac` (`\r`) (default `auto`).

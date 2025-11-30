@@ -15,6 +15,11 @@
 	"json_ensure_ascii": false,
 	"json_sort_keys": false,
 
+	// Convert simple attribute/text XML nodes to {attr: value, "value": text} when converting to JSON
+	"normalize_attribute_text_pairs": true,
+	// The key name to use for text content when normalize_attribute_text_pairs is enabled
+	"attribute_text_value_key": "value",
+
 	// Default root name when wrapping JSON that lacks a single root
 	"default_xml_root_name": "root",
 

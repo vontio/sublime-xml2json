@@ -67,6 +67,16 @@ def get_json_ensure_ascii():
 def get_json_sort_keys():
 	return get_bool_setting('json_sort_keys', False)
 
+def get_attr_text_normalization_enabled():
+	return get_bool_setting('normalize_attribute_text_pairs', True)
+
+def get_attr_text_value_key():
+	value_key = get_settings().get('attribute_text_value_key', 'value')
+	if not isinstance(value_key, str):
+		return 'value'
+	value_key = value_key.strip()
+	return value_key or 'value'
+
 def get_default_root_name():
 	root = get_settings().get('default_xml_root_name', 'root')
 	if not isinstance(root, str):
@@ -215,6 +225,8 @@ def xml2json(fulltext, pretty=None):
 		pretty = get_default_pretty()
 	try:
 		jsonObj = xmltodict.parse(fulltext)
+		if get_attr_text_normalization_enabled():
+			jsonObj = apply_attr_text_normalization(jsonObj)
 		if pretty:
 			jsonStr = json.dumps(
 				jsonObj,
@@ -238,27 +250,111 @@ class Xml2jsonCommand(sublime_plugin.TextCommand):
 		if jsonStr:
 			newViewWithText(jsonStr, 'json', fulltext)
 
+def apply_attr_text_normalization(node, value_key=None):
+	"""
+	Smartly flattens xmltodict structure.
+	1. Flattens attributes ("@key" -> "key") and text ("#text" -> configurable value key).
+	2. Handles conflicts: if <tag value="100">text</tag>, keeps original structure to save data.
+	3. Handles empty nodes: <tag name="x"></tag> -> {"name": "x", <value_key>: ""} for consistency.
+	"""
+	value_key = value_key or get_attr_text_value_key()
+
+	def _convert(current):
+		# Base case: primitive types (str, int, none, etc.) return as is
+		if not isinstance(current, (dict, list)):
+			return current
+
+		if isinstance(current, list):
+			return [_convert(item) for item in current]
+
+		if isinstance(current, dict):
+			new_dict = OrderedDict()
+			
+			# Analyze the node structure
+			attr_keys = [k for k in current.keys() if k.startswith('@')]
+			# Identify children that are NOT attributes and NOT text
+			child_keys = [k for k in current.keys() if not k.startswith('@') and k != '#text']
+			has_text = '#text' in current
+
+			# --- Fix: Handle Consistency for Empty Tags ---
+			# If a node has attributes, NO nested children, and NO text, it is an empty leaf tag.
+			# e.g., <string name="back"></string>
+			# To ensure consistency with siblings that have text, we force a "value": "" entry.
+			if attr_keys and not child_keys and not has_text:
+				# Treat it as having an empty string value instead of None
+				has_text = True
+				current = current.copy() # Shallow copy to avoid mutating original data unexpectedly
+				current['#text'] = "" # Changed from None to ""
+
+			# --- Conflict Detection ---
+			# Check if any attribute name (after stripping '@') conflicts with our target_text_key.
+			# e.g., <price value="100">USD</price> -> {"@value": "100", "#text": "USD"}
+			conflict = False
+			if has_text:
+				for k in attr_keys:
+					if k[1:] == value_key:
+						conflict = True
+						break
+
+			for key, val in current.items():
+				if conflict:
+					# If conflict exists, DO NOT flatten this specific node.
+					# Keep keys as is ('@value', '#text') to preserve both data points.
+					new_dict[key] = _convert(val)
+				else:
+					# No conflict: perform smart flattening
+					if key == '#text':
+						new_dict[value_key] = val # text becomes configured value key
+					elif key.startswith('@'):
+						new_dict[key[1:]] = val # remove "@" prefix
+					else:
+						new_dict[key] = _convert(val)
+			
+			return new_dict
+
+		return current
+
+	return _convert(node)
+
 def json2xml(fulltext, pretty=None):
 	if pretty is None:
 		pretty = get_default_pretty()
 	try:
 		data = json.JSONDecoder(object_pairs_hook=OrderedDict).decode(fulltext)
 		root_name = get_default_root_name() or "root"
+		
 		# decide if we need to wrap the data
 		if isinstance(data, list):
-			# list at root level, need to wrap
+			# Case 1: List at root level (e.g. [{}, {}]) -> Wrap in item tags under root
 			wrapped = OrderedDict([(
 				root_name, 
-				OrderedDict([("item", data)]) # wrap list items in "item" tags
+				OrderedDict([("item", data)])
 			)])
 		elif not isinstance(data, dict):
-			# string, number, bool, null etc. Wrap it
-			wrapped = OrderedDict([(root_name, data)])
-		elif len(data) > 1:
-			# multiple root-level keys, need to wrap
+			# Case 2: Primitive types (string, int, etc.) -> Wrap directly
 			wrapped = OrderedDict([(root_name, data)])
 		else:
-			wrapped = data
+			# Case 3: Dictionary
+			# We must wrap if:
+			# A) There are multiple keys (e.g. {"a":1, "b":2})
+			# OR
+			# B) There is exactly 1 key, BUT its value is a LIST (e.g. {"string": [{}, {}]})
+			#    Because xmltodict expands lists into sibling nodes, creating multiple roots.
+			
+			need_wrap = False
+			if len(data) > 1:
+				need_wrap = True
+			elif len(data) == 1:
+				# Get the first value safely
+				first_value = list(data.values())[0]
+				if isinstance(first_value, list):
+					need_wrap = True
+
+			if need_wrap:
+				wrapped = OrderedDict([(root_name, data)])
+			else:
+				wrapped = data
+
 		xmlStr = xmltodict.unparse(
 			wrapped,
 			pretty=pretty,
