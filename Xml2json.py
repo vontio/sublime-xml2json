@@ -460,7 +460,8 @@ class CompactJsonCommand(sublime_plugin.TextCommand):
 		compact = json.dumps(
 			jsonObj,
 			ensure_ascii=get_json_ensure_ascii(),
-			sort_keys=get_json_sort_keys())
+			sort_keys=get_json_sort_keys(),
+			separators=(',', ':'))
 		compact = normalize_newlines(compact, fulltext)
 		self.view.replace(edit, region, compact)
 		setSyntaxSafely(self.view, get_json_candidates())

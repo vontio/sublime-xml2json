@@ -14,7 +14,7 @@ convert xml file to json file or json file to xml file.
 
  - use `cmd+shift+P` then `xml2json` or `json2xml` (opens result in a new unsaved buffer)
  - use `cmd+shift+P` then `xml2json (Save to file)` or `json2xml (Save to file)` to save next to the source file (e.g. `abc.xml` -> `abc.json`, `abc.json` -> `abc.xml`); if the target exists you will be asked whether to overwrite, and choosing not to overwrite leaves the result in an unsaved buffer
- - use `cmd+shift+P` then `Pretty JSON`, `Pretty XML`, `Compact JSON`, or `Compact XML` to format the current buffer without saving
+ - use `cmd+shift+P` then `Pretty JSON`, `Pretty XML`, `Compact JSON` or `Compact XML` to format the current buffer without saving
  - or goto menubar `Tools` then `xml2json`
  - or bind some key in your user key binding:
 
@@ -44,5 +44,7 @@ convert xml file to json file or json file to xml file.
 - `line_ending`: line endings for generated output: `auto` (preserve from source), `unix` (`\n`), `windows` (`\r\n`), `mac` (`\r`) (default `auto`).
 - `ensure_final_newline`: ensure generated output ends with a newline (default `true`).
 - `trim_trailing_whitespace`: trim trailing spaces/tabs on generated lines (default `true`; removes spaces after commas in pretty JSON).
+
+You can adjust plugin settings and shortcuts via `Sublime Text` -> `Settings` -> `Package Settings` -> `xml2json` -> `Settings` and `Key Bindings`.
 
  [0]: http://wbond.net/sublime_packages/package_control
